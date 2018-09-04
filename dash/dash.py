@@ -86,6 +86,7 @@ class Dash(object):
             external_scripts=None,
             external_stylesheets=None,
             suppress_callback_exceptions=None,
+            serve_dev_bundles=False,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -217,6 +218,7 @@ class Dash(object):
         self._layout = None
         self._cached_layout = None
         self.routes = []
+        self._serve_dev_bundle = serve_dev_bundles
 
     @property
     def layout(self):
@@ -358,11 +360,14 @@ class Dash(object):
         # pylint: disable=protected-access
         srcs = self._collect_and_register_resources(
             self.scripts._resources._filter_resources(
-                dash_renderer._js_dist_dependencies
+                dash_renderer._js_dist_dependencies,
+                dev_bundles=self._serve_dev_bundle
             )) + self._external_scripts + self._collect_and_register_resources(
-                self.scripts.get_all_scripts() +
+                self.scripts.get_all_scripts(
+                    dev_bundles=self._serve_dev_bundle) +
                 self.scripts._resources._filter_resources(
-                    dash_renderer._js_dist
+                    dash_renderer._js_dist,
+                    dev_bundles=self._serve_dev_bundle
                 ))
 
         return '\n'.join([
