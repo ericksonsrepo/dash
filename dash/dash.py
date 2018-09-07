@@ -86,7 +86,6 @@ class Dash(object):
             external_scripts=None,
             external_stylesheets=None,
             suppress_callback_exceptions=None,
-            serve_dev_bundles=False,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -218,7 +217,7 @@ class Dash(object):
         self._layout = None
         self._cached_layout = None
         self.routes = []
-        self._serve_dev_bundle = serve_dev_bundles
+        self._serve_dev_bundle = False
 
     @property
     def layout(self):
@@ -962,5 +961,25 @@ class Dash(object):
     def run_server(self,
                    port=8050,
                    debug=False,
+                   dev_tools=True,
+                   dev_tools_bundles=False,
                    **flask_run_options):
-        self.server.run(port=port, debug=debug, **flask_run_options)
+        """
+        Start the flask server in local mode, you should not run this on a
+        production server and use gunicorn/waitress instead. By default will
+        activate the dev tools (dev bundles).
+
+        :param port: Port the application
+        :type port: int
+        :param debug: Set the debug mode of flask.
+        :type debug: bool
+        :param dev_tools: Activate all the dev tools.
+        :type dev_tools: bool
+        :param dev_tools_bundles: Serve the dev bundles of component libs.
+        :type dev_tools_bundles: bool
+        :param flask_run_options: Given to `Flask.run`
+        :return:
+        """
+        self._serve_dev_bundle = dev_tools_bundles or dev_tools
+        self.server.run(port=port, debug=dev_tools or debug,
+                        **flask_run_options)
