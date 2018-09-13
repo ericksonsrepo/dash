@@ -233,6 +233,8 @@ class Dash(object):
         self._hard_reload = False
         self._lock = threading.RLock()
         self._watch_thread = None
+        self._hot_reload = hot_reload
+
         if hot_reload:
             self._watch_thread = threading.Thread(
                 target=lambda: _watch.watch([self._assets_folder],
@@ -240,9 +242,6 @@ class Dash(object):
                                             sleep_time=0.5))
             self._watch_thread.daemon = True
             self._watch_thread.start()
-
-            if not self.server.debug:
-                self.server.debug = True
 
     @property
     def layout(self):
@@ -1008,4 +1007,5 @@ class Dash(object):
                    port=8050,
                    debug=False,
                    **flask_run_options):
+        debug = debug or self._hot_reload
         self.server.run(port=port, debug=debug, **flask_run_options)
